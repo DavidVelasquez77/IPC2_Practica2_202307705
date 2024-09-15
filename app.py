@@ -1,16 +1,45 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 
+class Auto:
+    autos = []
+
+    def __init__(self, idTipoAuto, marca, modelo, descripcion, precio, cantidad, imagen):
+        self.idTipoAuto = idTipoAuto
+        self.marca = marca
+        self.modelo = modelo
+        self.descripcion = descripcion
+        self.precio = precio
+        self.cantidad = cantidad
+        self.imagen = imagen
+
+    @classmethod
+    def registrar_auto(cls, idTipoAuto, marca, modelo, descripcion, precio, cantidad, imagen):
+        for auto in cls.autos:
+            if auto.idTipoAuto == idTipoAuto:
+                return False
+        nuevo_auto = cls(idTipoAuto, marca, modelo, descripcion, precio, cantidad, imagen)
+        cls.autos.append(nuevo_auto)
+        return True
+
+    @classmethod
+    def eliminar_auto(cls, idTipoAuto):
+        cls.autos = [auto for auto in cls.autos if int(auto.idTipoAuto) != idTipoAuto]
+
+    @classmethod
+    def obtener_autos(cls):
+        return cls.autos
+
+class Empleado:
+    USUARIO = "empleado"
+    PASSWORD = "$uper4utos#"
+
+    @staticmethod
+    def autenticar(usuario, password):
+        return usuario == Empleado.USUARIO and password == Empleado.PASSWORD
+
 app = Flask(__name__)
 app.secret_key = "clave_secreta_para_sesiones"
 
-# Datos de inicio de sesión del empleado
-EMPLEADO_USUARIO = "empleado"
-EMPLEADO_PASSWORD = "$uper4utos#"
-
-# Almacenamiento en memoria de los autos
-autos = []
-
-# Página de inicio de sesión
 @app.route('/')
 def login():
     return render_template('login.html')
@@ -19,22 +48,20 @@ def login():
 def do_login():
     usuario = request.form['usuario']
     password = request.form['password']
-    if usuario == EMPLEADO_USUARIO and password == EMPLEADO_PASSWORD:
+    if Empleado.autenticar(usuario, password):
         session['empleado'] = usuario
         return redirect(url_for('home'))
     else:
         flash("Usuario o contraseña incorrectos", "error")
         return redirect(url_for('login'))
 
-# Página de inicio después de iniciar sesión
 @app.route('/home')
 def home():
     if 'empleado' in session:
-        return render_template('home.html', autos=autos)
+        return render_template('home.html', autos=Auto.obtener_autos())
     else:
         return redirect(url_for('login'))
 
-# Página para agregar un nuevo auto
 @app.route('/auto')
 def auto():
     if 'empleado' in session:
@@ -42,7 +69,6 @@ def auto():
     else:
         return redirect(url_for('login'))
 
-# Registrar un auto
 @app.route('/registrar_auto', methods=['POST'])
 def registrar_auto():
     idTipoAuto = request.form['idTipoAuto']
@@ -53,37 +79,19 @@ def registrar_auto():
     cantidad = request.form['cantidad']
     imagen = request.form['imagen']
 
-    # Verificar si el auto ya existe por idTipoAuto
-    for auto in autos:
-        if auto['idTipoAuto'] == idTipoAuto:
-            flash("El auto con ese ID ya existe", "error")
-            return redirect(url_for('home'))
-
-    # Crear el nuevo auto
-    nuevo_auto = {
-        'idTipoAuto': idTipoAuto,
-        'marca': marca,
-        'modelo': modelo,
-        'descripcion': descripcion,
-        'precio': precio,
-        'cantidad': cantidad,
-        'imagen': imagen
-    }
+    if not Auto.registrar_auto(idTipoAuto, marca, modelo, descripcion, precio, cantidad, imagen):
+        flash("El auto con ese ID ya existe", "error")
+        return redirect(url_for('home'))
     
-    # Agregar el auto a la lista en memoria
-    autos.append(nuevo_auto)
     flash("Auto registrado exitosamente", "success")
     return redirect(url_for('home'))
 
-# Eliminar un auto por su ID
 @app.route('/eliminar_auto/<int:idTipoAuto>')
 def eliminar_auto(idTipoAuto):
-    global autos
-    autos = [auto for auto in autos if int(auto['idTipoAuto']) != idTipoAuto]
+    Auto.eliminar_auto(idTipoAuto)
     flash("Auto eliminado correctamente", "success")
     return redirect(url_for('home'))
 
-# Cerrar sesión
 @app.route('/logout')
 def logout():
     session.pop('empleado', None)
