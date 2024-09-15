@@ -1,0 +1,80 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background-image: url('./static/images/fondo.jpg');
+    background-size: cover;
+}
+
+h2 {
+    color: #333;
+}
+
+form {
+    margin: 20px 0;
+}
+
+input, textarea {
+    display: block;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+img {
+    max-width: 100px;
+}
+
+body {
+    background-color: #f8f9fa;
+}
+
+.card {
+    background-color: rgba(255, 255, 255, 0.8); /* Transparencia */
+    border-radius: 15px;
+    padding: 20px;
+    backdrop-filter: blur(10px); /* Desenfoque de fondo */
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); /* Efecto hover con sombra */
+}
+
+.btn-primary {
+    background: linear-gradient(90deg, #4b6cb7, #182848); /* Gradiente del botón */
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(90deg, #3a4d8f, #10182d);
+}
+
+.fade-in {
+    animation: fadeIn 1s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.table img {
+    max-width: 100px;
+    height: auto;
+}
